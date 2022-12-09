@@ -6,6 +6,9 @@ https://hh.ru/vacancy/68361352*/
 #include <bitset>
 #include <iostream>
 #include <vector>
+
+#define BYTE_SIZE 8
+
 using namespace std;
 
 /*
@@ -15,12 +18,12 @@ using namespace std;
 // Cложность алгоритма O(N)
 void binaryPrint(int decimal)
 {
-  string binary;
+  string binary("");
 
   if (decimal)
   {
     //битова маска для decimal<0 : "0111...11"
-    int quantity_bit = sizeof(decimal) * 8;
+    int quantity_bit = sizeof(decimal) * BYTE_SIZE;
     int bitmask = ~(1 << (quantity_bit - 1));
 
     while (decimal)
@@ -30,9 +33,7 @@ void binaryPrint(int decimal)
       else
         binary.append("0");
 
-      // decimal >>= 1;
-      // decimal &= bitmask;
-      decimal = (decimal >> 1) & bitmask;
+      decimal = (decimal >> 1) & (decimal < 0 ? bitmask : ~0);
     }
     reverse(binary.begin(), binary.end());
   }
@@ -74,6 +75,8 @@ void RemoveDups(char in[])
   //копируем out в in
   for (int i = 0; i <= size_out; ++i)
     in[i] = out[i];
+
+  delete[] out;
 }
 
 /*3. Реализуйте функции сериализации и десериализации двусвязного списка. Данные должны
@@ -83,8 +86,8 @@ struct ListNode
 {
   ListNode *prev = nullptr; // указатель на предыдущий элемент списка, либо `nullptr ` в случае начала списка
   ListNode *next = nullptr;
-  ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr` std::string data; //
-                            // произвольные пользов ательские данные
+  ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr`
+  std::string data; //произвольные пользов ательские данные
 };
 class List
 {
@@ -92,7 +95,56 @@ public:
   void Serialize(FILE *file); // сохранение списка в файл, файл открыт с помощью `fopen(path, "wb")`
   void Deserialize(FILE *file); // восстановление списка из файла, файл открыт с помощью `fopen(path, "rb")`
   // ... ваши методы для заполнения списка
-  List(int count = 0) : count(count){};
+  List(int count = 0) : count(count)
+  {
+    ListNode *pNode = nullptr;
+    if (count > 0)
+    {
+      head = new ListNode;
+      tail = head->rand = pNode = head;
+      head->data = "0";
+
+      for (int i = 1; i < count; ++i)
+      {
+        pNode->next = new ListNode;
+        pNode->next->prev = pNode;
+        pNode = pNode->next;
+        pNode->rand = head;
+        pNode->data = to_string(i);
+      }
+      tail = pNode;
+    }
+  };
+
+  ~List()
+  {
+    ListNode *pNode = nullptr;
+    if (count > 0)
+    {
+      for (pNode = head->next; pNode != nullptr; pNode = pNode->next)
+        delete pNode->prev;
+
+      delete tail;
+      head = nullptr;
+      tail = nullptr;
+    }
+  }
+  void Print()
+  {
+    ListNode *pNode = nullptr;
+    if (count > 0)
+    {
+      for (pNode = head; pNode != nullptr; pNode = pNode->next)
+        cout << pNode->data << " ";
+
+      cout << endl;
+
+      for (pNode = tail; pNode != nullptr; pNode = pNode->prev)
+        cout << pNode->data << " ";
+
+      cout << endl;
+    }
+  };
 
 private:
   ListNode *head = nullptr;
@@ -104,19 +156,27 @@ int main()
 {
   cout << "Hello Saber!\n" << endl;
 
-  vector<int> test_value = {0, 1, 99, -99};
+  vector<int> test_value = {0, 1, 90, -99, 1026, -1248};
 
   for (auto i : test_value)
   {
     cout << "in: " << i << endl;
     binaryPrint(i);
 
-    std::bitset<8> check(i);
+    std::bitset<(sizeof(int) * BYTE_SIZE)> check(i);
     cout << "Check bitset out: " << check << endl;
   }
 
   char data[] = "  AAA BBB AAA   asdaff  ";
   RemoveDups(data);
   printf("%s\n", data); // "A B A"
+
+  FILE *readFile = fopen("file.txt", "rb");
+  FILE *writeFile = fopen("file.txt", "wb");
+  List myList(3);
+  myList.Print();
+  myList.Serialize(writeFile);
+  myList.Deserialize(readFile);
+
   return 0;
 }
