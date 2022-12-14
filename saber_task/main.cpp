@@ -88,105 +88,40 @@ struct ListNode
   ListNode *prev = nullptr; // указатель на предыдущий элемент списка, либо `nullptr ` в случае начала списка
   ListNode *next = nullptr;
   ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr`
-  // std::string data; //произвольные пользов ательские данные
-  int data;
+  std::string data; //произвольные пользов ательские данные
+  // int data;
 };
+struct SerializeNode
+{
+  ListNode *prev = nullptr; // указатель на предыдущий элемент списка, либо `nullptr ` в случае начала списка
+  ListNode *next = nullptr;
+  ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr`
+  int str_size = 0;
+  const char *str = nullptr;
+};
+
 class List
 {
 public:
-  void Serialize(FILE *file) // сохранение списка в файл, файл открыт с помощью `fopen(path, "wb")`
-  {
-    ListNode *pNode = nullptr;
+  void Serialize(FILE *file);
 
-    if (file == NULL)
-      cout << "Ошибка при открытии файла.\n";
-
-    for (pNode = head; pNode != nullptr; pNode = pNode->next)
-    {
-      if (fwrite((void *)pNode, sizeof(ListNode), 1, file) != 1)
-        cout << "Ошибка при записи файла.\n";
-      cout << sizeof(*pNode) << " " << sizeof(pNode) << " " << sizeof(ListNode) << " Size.\n";
-    }
-  }
-
-  void Deserialize(FILE *file) // восстановление списка из файла, файл открыт с помощью `fopen(path, "rb")`
-  {
-    ListNode *fNode = nullptr, *pNode = nullptr;
-    map<ListNode *, ListNode *> on_addr; // key - старый адрес,  value - новый адрес
-
-    if (file == NULL)
-      cout << "Ошибка при открытии файла.\n";
-
-    /*if (fread(fNode = new ListNode, sizeof(struct ListNode), 1, file) != 1)
-    {
-      cout << "Ошибка при первом чтении файла.\n";
-      return;
-    }*/
-
-    for (count = 0;; ++count) // fNode->next != nullptr
-    {
-      size_t result = fread(fNode = new ListNode, sizeof(ListNode), 1, file); // считываем узел в буфер
-
-      if (feof(file))
-        break;
-      else if (result != 1)
-      {
-        if (feof(file))
-          cout << "Преждевременное достижение конца файла.";
-        else
-          cout << "Ошибка при чтении файла. result: " << result << " Номер элемента: " << count << endl;
-        break;
-      }
-      else
-      {
-        cout << "Чтении файла. result: " << result << " Номер элемента: " << count << endl;
-
-        if (fNode->prev == nullptr) //первый элемент
-        {
-          head = tail = pNode = fNode;
-        }
-        else if (fNode->next != nullptr)
-        {
-          on_addr[fNode->prev] = pNode;
-          fNode->prev = pNode;
-          pNode->next = fNode;
-
-          pNode = fNode;
-        }
-        else if (fNode->next == nullptr)
-        {
-          on_addr[fNode->prev] = pNode;
-          on_addr[pNode->next] = fNode;
-          fNode->prev = pNode;
-          pNode->next = fNode;
-
-          tail = fNode;
-        }
-      }
-    }
-
-    //замена рандомных старых адресов на новые по словарю
-    for (pNode = head; pNode != nullptr; pNode = pNode->next)
-      pNode->rand = on_addr[pNode->rand];
-
-    // tail = fNode;  pNode->prev->next;
-  }
+  void Deserialize(FILE *file);
   // ... ваши методы для заполнения списка
-  List(int count = 0) : count(count)
+  List(int count = 0) : head(NULL), tail(NULL), count(count)
   {
-    ListNode *pNode = nullptr;
+    ListNode *pNode; //= nullptr;
     if (count > 0)
     {
       head = new ListNode;
       tail = pNode = head;
-      head->data = 0;
+      head->data = "00";
 
       for (int i = 1; i < count; ++i)
       {
         pNode->next = new ListNode;
         pNode->next->prev = pNode;
         pNode = pNode->next;
-        pNode->data = i; // to_string(i) + to_string(i);
+        pNode->data = to_string(i) + to_string(i); // i;
 
         if (pNode->prev != nullptr)
           pNode->rand = pNode->prev->prev;
@@ -210,7 +145,7 @@ public:
   }
   void Print()
   {
-    ListNode *pNode = nullptr;
+    ListNode *pNode; //= nullptr;
     if (count > 0)
     {
       cout << " Head -> Tail\n";
@@ -233,8 +168,8 @@ public:
   };
 
 private:
-  ListNode *head = nullptr;
-  ListNode *tail = nullptr;
+  ListNode *head; //= nullptr;
+  ListNode *tail; //= nullptr;
   int count = 0;
 };
 
@@ -275,4 +210,96 @@ int main()
   }
 
   return 0;
+}
+
+void List::Serialize(FILE *file) // сохранение списка в файл, файл открыт с помощью `fopen(path, "wb")`
+{
+  ListNode *pNode; //= nullptr;
+  SerializeNode sNode;
+
+  if (file == NULL)
+    cout << "Ошибка при открытии файла.\n";
+
+  for (pNode = head; pNode != nullptr; pNode = pNode->next)
+  {
+    sNode.next = pNode->next;
+    sNode.prev = pNode->prev;
+    sNode.rand = pNode->rand;
+    // sNode->str = new char[pNode->data.size()];
+    // strcpy(, pNode->data.c_str());
+    sNode.str_size = pNode->data.size();
+    sNode.str = pNode->data.c_str();
+
+    if (fwrite(&sNode, sizeof(SerializeNode), 1, file) != 1)
+      cout << "Ошибка при записи файла.\n";
+    if (fwrite(sNode.str, pNode->data.size(), 1, file) != 1)
+      cout << "Ошибка при записи файла.\n";
+    cout << sizeof(*pNode) << " " << sizeof(pNode) << " " << sNode.str << " Size.\n";
+  }
+}
+
+void List::Deserialize(FILE *file) // восстановление списка из файла, файл открыт с помощью `fopen(path, "rb")`
+{
+  ListNode *fNode, *pNode;             //= nullptr= nullptr
+  SerializeNode *sNode;                //= nullptr;
+  char *p = NULL;                      //;
+  map<ListNode *, ListNode *> on_addr; // key - старый адрес,  value - новый адрес
+
+  if (file == NULL)
+    cout << "Ошибка при открытии файла.\n";
+
+  for (count = 0;; ++count) // fNode->next != nullptr
+  {
+    size_t result = fread(sNode = new SerializeNode, sizeof(SerializeNode), 1, file); // считываем узел в буфер
+    result += fread(p = new char[sNode->str_size], sizeof(char), sNode->str_size, file); // считываем узел в буфер
+
+    if (feof(file))
+      break;
+    else if (result != (1 + sNode->str_size))
+    {
+      if (feof(file))
+        cout << "Преждевременное достижение конца файла.\n";
+      else
+        cout << "Ошибка при чтении файла. result: " << result << " Номер элемента: " << count << endl;
+      break;
+    }
+    else
+    {
+      fNode = new ListNode;
+      fNode->next = sNode->next;
+      fNode->prev = sNode->prev;
+      fNode->rand = sNode->rand;
+      fNode->data = p;
+      cout << "Чтении файла. result: " << result << " Номер/data элемента: " << count << "/" << fNode->data << endl;
+
+      if (fNode->prev == nullptr) //первый элемент
+      {
+        head = tail = pNode = fNode;
+      }
+      else if (fNode->next != nullptr)
+      {
+        on_addr[fNode->prev] = pNode;
+        fNode->prev = pNode;
+        pNode->next = fNode;
+
+        pNode = fNode;
+      }
+      else if (fNode->next == nullptr)
+      {
+        on_addr[fNode->prev] = pNode;
+        on_addr[pNode->next] = fNode;
+        fNode->prev = pNode;
+        pNode->next = fNode;
+
+        tail = fNode;
+      }
+    }
+    // delete[] p;
+  }
+
+  //замена рандомных старых адресов на новые по словарю
+  for (pNode = head; pNode != nullptr; pNode = pNode->next)
+    pNode->rand = on_addr[pNode->rand];
+
+  // tail = fNode;  pNode->prev->next;
 }
