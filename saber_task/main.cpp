@@ -46,8 +46,7 @@ void binaryPrint(int decimal)
 }
 
 /*
-2. Напишите функцию, удаляющую последовательно дублирующиеся символы в строке:
-void RemoveDups(char* str);
+2. Напишите функцию, удаляющую последовательно дублирующиеся символы в строке: void RemoveDups(char* str);
 // пример использования
 char data[] = "AAA BBB AAA";
 RemoveDups(data);
@@ -81,8 +80,8 @@ void RemoveDups(char in[])
   delete[] out;
 }
 
-/*3. Реализуйте функции сериализации и десериализации двусвязного списка. Данные должны
-быть записаны в бинарном формате. Ожидаемая алгоритмическая сложность – меньше квадратичной.*/
+/*3. Реализуйте функции сериализации и десериализации двусвязного списка. Данные должны быть записаны в бинарном
+формате. Ожидаемая алгоритмическая сложность – меньше квадратичной.*/
 // структуру ListNode модифицировать нельзя
 struct ListNode
 {
@@ -90,44 +89,42 @@ struct ListNode
   ListNode *next = nullptr;
   ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr`
   std::string data; //произвольные пользов ательские данные
-  // int data;
 };
-struct SerializeNode
+struct SerializeNode // структура для серилизации
 {
   ListNode *prev = nullptr; // указатель на предыдущий элемент списка, либо `nullptr ` в случае начала списка
   ListNode *next = nullptr;
   ListNode *rand = nullptr; // указатель на произвольный элемент данного списка, либо `nullptr`
   int str_size = 0;
-  const char *str = nullptr;
+  char *str = nullptr;
 };
 
+// Cложность сериализации и десериализации O(N)
 class List
 {
 public:
-  void Serialize(FILE *file);
-
-  void Deserialize(FILE *file);
   // ... ваши методы для заполнения списка
-  List(int count = 0) : head(NULL), tail(NULL), count(count)
+  List(int count = 0) : count(count)
   {
     ListNode *pNode; //= nullptr;
     if (count > 0)
     {
       head = new ListNode;
       tail = pNode = head;
-      head->data = "00";
+      head->data = "Head";
 
       for (int i = 1; i < count; ++i)
       {
         pNode->next = new ListNode;
         pNode->next->prev = pNode;
         pNode = pNode->next;
-        pNode->data = to_string(i) + to_string(i); // i;
+        pNode->data = to_string(i);
 
         if (pNode->prev != nullptr)
-          pNode->rand = pNode->prev->prev;
+          pNode->rand = pNode->prev->prev; // pNode->rand указывает на пред предыдущий
       }
       tail = pNode;
+      tail->data = "Tail";
     }
   };
 
@@ -144,40 +141,46 @@ public:
       tail = nullptr;
     }
   }
-  void Print()
+
+  void Serialize(FILE *file);
+
+  void Deserialize(FILE *file);
+
+  void Print_list()
   {
     ListNode *pNode; //= nullptr;
     if (count > 0)
     {
-      cout << " Head -> Tail\n";
+      cout << "Print_list: Head -> Tail\n";
       for (pNode = head; pNode != nullptr; pNode = pNode->next)
         if (pNode->rand != nullptr)
-          cout << pNode->data << "(rnd:" << pNode->rand->data << ") ";
+          cout << "  " << pNode->data << "(rnd:" << pNode->rand->data << ") ";
         else
-          cout << pNode->data << "(rnd:null) ";
+          cout << "  " << pNode->data << "(rnd:null) ";
       cout << endl;
 
-      cout << " Tail -> Head\n";
+      cout << "Print_list: Tail -> Head\n";
 
       for (pNode = tail; pNode != nullptr; pNode = pNode->prev)
         if (pNode->rand != nullptr)
-          cout << pNode->data << "(rnd:" << pNode->rand->data << ") ";
+          cout << "  " << pNode->data << "(rnd:" << pNode->rand->data << ") ";
         else
-          cout << pNode->data << "(rnd:null) ";
+          cout << "  " << pNode->data << "(rnd:null) ";
       cout << endl;
     }
   };
 
 private:
-  ListNode *head; //= nullptr;
-  ListNode *tail; //= nullptr;
+  ListNode *head = nullptr;
+  ListNode *tail = nullptr;
   int count = 0;
 };
 
 int main()
 {
-  cout << "Hello Saber!\n" << endl;
+  cout << "Hello Saber!\n";
 
+  cout << "\nЗадание 1(дубли):\n";
   vector<int> test_value = {0, 1, 90, -99, 1026, -1248};
 
   for (auto i : test_value)
@@ -189,33 +192,32 @@ int main()
     cout << "Check bitset out: " << check << endl;
   }
 
-  char data[] = "  AAA BBB AAA   asdaff  ";
-  RemoveDups(data);
-  printf("%s\n", data); // "A B A"
+  cout << "\nЗадание 2(дубли):\n";
 
-  if (0)
-  {
-    List myList(5);
-    FILE *writeFile = fopen("file.txt", "wb");
-    myList.Serialize(writeFile);
-    fclose(writeFile);
-    myList.Print();
-  }
-  else
-  {
-    List myList(0);
-    FILE *readFile = fopen("file.txt", "rb");
-    myList.Deserialize(readFile);
-    fclose(readFile);
-    myList.Print();
-  }
+  char data[] = "  AAA BBB AAA   asdaff  ";
+  cout << "in:\"" << data << "\"" << endl;
+  RemoveDups(data);
+  printf("out:\"%s\"\n", data); // "A B A"
+
+  cout << "\nЗадание 3(сериализация):\n";
+  List myList(2);
+  FILE *writeFile = fopen("file.txt", "wb");
+  myList.Serialize(writeFile);
+  fclose(writeFile);
+  myList.Print_list();
+
+  List myList2(0);
+  FILE *readFile = fopen("file.txt", "rb");
+  myList2.Deserialize(readFile);
+  fclose(readFile);
+  myList2.Print_list();
 
   return 0;
 }
 
 void List::Serialize(FILE *file) // сохранение списка в файл, файл открыт с помощью `fopen(path, "wb")`
 {
-  ListNode *pNode; //= nullptr;
+  ListNode *pNode = head; //= nullptr;
   SerializeNode sNode;
 
   if (file == NULL)
@@ -223,87 +225,102 @@ void List::Serialize(FILE *file) // сохранение списка в фай�
     cout << "List::Serialize: Ошибка при открытии файла.\n";
     return;
   }
-
-  for (pNode = head; pNode != nullptr; pNode = pNode->next)
+  else if (head == nullptr)
   {
-    sNode.next = pNode->next;
+    cout << "List::Serialize: Список пуст.\n";
+    return;
+  }
+
+  do
+  {
+    sNode.next = pNode->next; // заполняем структуру для серилизации
     sNode.prev = pNode->prev;
     sNode.rand = pNode->rand;
     sNode.str_size = pNode->data.size();
-    sNode.str = pNode->data.c_str();
-    // memcpy((void *)sNode.str, (const void *)pNode->data.c_str(), pNode->data.size());
+    memcpy(sNode.str = new char[sNode.str_size + 1], pNode->data.c_str(),
+           sNode.str_size + 1); //размер: символы + \0
 
-    if (fwrite(&sNode, sizeof(SerializeNode), 1, file) != 1)
-      cout << "Ошибка при записи файла.\n";
-    if (fwrite(sNode.str, sizeof(char), pNode->data.size() + 1, file) != 1)
-      cout << "Ошибка при записи файла.\n";
-    cout << sizeof(*pNode) << " " << sizeof(pNode) << " " << sNode.str << " Size.\n";
-  }
+    size_t n_write = fwrite(&sNode, sizeof(SerializeNode), 1, file);
+    n_write += fwrite(sNode.str, sizeof(char), sNode.str_size + 1,
+                      file); //размер: символы + \0
+    if (n_write != 1 + sNode.str_size + sizeof(char))
+    {
+      cout << "Ошибка при записи SerializeNode в файл.\n";
+      return;
+    }
+    cout << "Запись файла:" << n_write << " байт data:\"" << sNode.str << "\" \n";
+    pNode = pNode->next;
+  } while (pNode != nullptr);
 }
 
 void List::Deserialize(FILE *file) // восстановление списка из файла, файл открыт с помощью `fopen(path, "rb")`
 {
-  ListNode *fNode, *pNode;             //= nullptr= nullptr
-  SerializeNode *sNode;                //= nullptr;
-  char *p = NULL;                      //;
-  map<ListNode *, ListNode *> on_addr; // key - старый адрес,  value - новый адрес
+  ListNode *fNode, *prevNode; //= nullptr= nullptr
+  SerializeNode *sNode;       //= nullptr;
+  //;
+  map<ListNode *, ListNode *> on_addr; // key - старый адрес,  value - новый адрес для востановления ListNode *rand
 
   if (file == NULL)
     cout << "List::Deserialize: Ошибка при открытии файла.\n";
 
-  for (count = 0;; ++count) // fNode->next != nullptr
+  do // fNode->next != nullptr
   {
-    size_t result = fread(sNode = new SerializeNode, sizeof(SerializeNode), 1, file); // считываем узел в буфер
-    result += fread(p = new char[sNode->str_size + 1], sizeof(char), sNode->str_size + sizeof(char),
-                    file); // считываем строку + \0
+    size_t n_read = fread(sNode = new SerializeNode, sizeof(SerializeNode), 1,
+                          file); // считываем узел
+    n_read += fread(sNode->str = new char[sNode->str_size + 1], sizeof(char), sNode->str_size + 1, file);
 
     if (feof(file))
+    {
+      cout << "Конец файла.\n";
       break;
-    else if (result != (1 + sNode->str_size + 1))
+    }
+    else if (n_read != (1 + sNode->str_size + sizeof(char))) // 1шт(SerializeNode) + кол-во символов + 1 нулбайт
     {
       if (feof(file))
         cout << "Преждевременное достижение конца файла.\n";
       else
-        cout << "Ошибка при чтении файла. result: " << result << " Номер элемента: " << count << endl;
+        cout << "Ошибка при чтении файла. result: " << n_read << " Номер элемента: " << count << endl;
       break;
     }
     else
     {
+      cout << "Чтение файла: " << n_read << " байт data:\"" << sNode->str << "\" \n";
       fNode = new ListNode;
       fNode->next = sNode->next;
       fNode->prev = sNode->prev;
       fNode->rand = sNode->rand;
-      fNode->data = p;
-      cout << "Чтении файла. result: " << result << " Номер/data элемента: " << count << "/" << fNode->data << endl;
+      fNode->data = sNode->str;
 
+      //строим список
       if (fNode->prev == nullptr) //первый элемент
       {
-        head = tail = pNode = fNode;
+        head = tail = prevNode = fNode;
       }
       else if (fNode->next != nullptr)
       {
-        on_addr[fNode->prev] = pNode;
-        fNode->prev = pNode;
-        pNode->next = fNode;
+        on_addr[fNode->prev] = prevNode; //соотносим старый адрес с новым адресом
+        fNode->prev = prevNode;
+        prevNode->next = fNode;
 
-        pNode = fNode;
+        prevNode = fNode;
       }
-      else if (fNode->next == nullptr)
+      else if (fNode->next == nullptr) //последний элемент
       {
-        on_addr[fNode->prev] = pNode;
-        on_addr[pNode->next] = fNode;
-        fNode->prev = pNode;
-        pNode->next = fNode;
+        on_addr[fNode->prev] = prevNode; //соотносим старый адрес с новым адресом
+        on_addr[prevNode->next] = fNode;
+        fNode->prev = prevNode;
+        prevNode->next = fNode;
 
         tail = fNode;
       }
+      ++count;
     }
-    delete[] p;
-  }
+
+    delete[] sNode->str;
+    delete sNode;
+  } while (fNode->next != nullptr);
 
   //замена рандомных старых адресов на новые по словарю
-  for (pNode = head; pNode != nullptr; pNode = pNode->next)
-    pNode->rand = on_addr[pNode->rand];
-
-  // tail = fNode;  pNode->prev->next;
+  for (prevNode = head; prevNode != nullptr; prevNode = prevNode->next)
+    prevNode->rand = on_addr[prevNode->rand];
 }
