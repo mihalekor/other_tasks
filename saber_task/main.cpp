@@ -4,6 +4,7 @@ https://hh.ru/vacancy/68361352*/
 
 #include <algorithm>
 #include <bitset>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -218,21 +219,23 @@ void List::Serialize(FILE *file) // сохранение списка в фай�
   SerializeNode sNode;
 
   if (file == NULL)
-    cout << "Ошибка при открытии файла.\n";
+  {
+    cout << "List::Serialize: Ошибка при открытии файла.\n";
+    return;
+  }
 
   for (pNode = head; pNode != nullptr; pNode = pNode->next)
   {
     sNode.next = pNode->next;
     sNode.prev = pNode->prev;
     sNode.rand = pNode->rand;
-    // sNode->str = new char[pNode->data.size()];
-    // strcpy(, pNode->data.c_str());
     sNode.str_size = pNode->data.size();
     sNode.str = pNode->data.c_str();
+    // memcpy((void *)sNode.str, (const void *)pNode->data.c_str(), pNode->data.size());
 
     if (fwrite(&sNode, sizeof(SerializeNode), 1, file) != 1)
       cout << "Ошибка при записи файла.\n";
-    if (fwrite(sNode.str, pNode->data.size(), 1, file) != 1)
+    if (fwrite(sNode.str, sizeof(char), pNode->data.size() + 1, file) != 1)
       cout << "Ошибка при записи файла.\n";
     cout << sizeof(*pNode) << " " << sizeof(pNode) << " " << sNode.str << " Size.\n";
   }
@@ -246,16 +249,17 @@ void List::Deserialize(FILE *file) // восстановление списка 
   map<ListNode *, ListNode *> on_addr; // key - старый адрес,  value - новый адрес
 
   if (file == NULL)
-    cout << "Ошибка при открытии файла.\n";
+    cout << "List::Deserialize: Ошибка при открытии файла.\n";
 
   for (count = 0;; ++count) // fNode->next != nullptr
   {
     size_t result = fread(sNode = new SerializeNode, sizeof(SerializeNode), 1, file); // считываем узел в буфер
-    result += fread(p = new char[sNode->str_size], sizeof(char), sNode->str_size, file); // считываем узел в буфер
+    result += fread(p = new char[sNode->str_size + 1], sizeof(char), sNode->str_size + sizeof(char),
+                    file); // считываем строку + \0
 
     if (feof(file))
       break;
-    else if (result != (1 + sNode->str_size))
+    else if (result != (1 + sNode->str_size + 1))
     {
       if (feof(file))
         cout << "Преждевременное достижение конца файла.\n";
@@ -294,7 +298,7 @@ void List::Deserialize(FILE *file) // восстановление списка 
         tail = fNode;
       }
     }
-    // delete[] p;
+    delete[] p;
   }
 
   //замена рандомных старых адресов на новые по словарю
