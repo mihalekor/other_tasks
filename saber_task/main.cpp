@@ -42,7 +42,7 @@ void binaryPrint(int decimal)
   else
     binary = "0";
 
-  cout << "binaryPrint out: " << binary << endl;
+  cout << "binaryPrint out : " << binary << endl;
 }
 
 /*
@@ -140,6 +140,47 @@ public:
       head = nullptr;
       tail = nullptr;
     }
+  }
+
+  void PushTop(const char *str)
+  {
+    if (head == nullptr)
+    {
+      head = tail = new ListNode;
+      head->data = str;
+    }
+    else
+    {
+      head->prev = new ListNode;
+      head->prev->next = head;
+
+      head = head->prev;
+      head->data = str;
+
+      if (head->next != nullptr)
+        head->rand = head->next->next;
+    }
+    ++count;
+  }
+  void PushBack(const char *str)
+  {
+    if (head == nullptr)
+    {
+      head = tail = new ListNode;
+      head->data = str;
+    }
+    else
+    {
+      tail->next = new ListNode;
+      tail->next->prev = tail;
+
+      tail = tail->next;
+      tail->data = str;
+
+      if (tail->prev != nullptr)
+        tail->rand = tail->prev->prev;
+    }
+    ++count;
   }
 
   void Serialize(FILE *file) // сохранение списка в файл, файл открыт с помощью `fopen(path, "wb")`
@@ -244,7 +285,7 @@ public:
       delete sNode;
     } while (fNode->next != nullptr);
 
-    //замена рандомных старых адресов на новые по словарю
+    //замена рандомных старых адресов на новые для восстановления соотношений по рандомным указателям
     for (prevNode = head; prevNode != nullptr; prevNode = prevNode->next)
       prevNode->rand = on_addr[prevNode->rand];
   }
@@ -284,7 +325,7 @@ int main()
   cout << "Hello Saber!\n";
 
   cout << "\nЗадание 1(дубли):\n";
-  vector<int> test_value = {0, 1, 90, -99, 1026, -1248};
+  vector<int> test_value = {0, -1, 90, -99, 1026, -1248};
 
   for (auto i : test_value)
   {
@@ -297,13 +338,15 @@ int main()
 
   cout << "\nЗадание 2(дубли):\n";
 
-  char data[] = "  AAA BBB AAA   asdaff  ";
+  char data[] = "  AAA BBB AAA  __ qqWWqq  ZzEe     !!!!!!!";
   cout << "in:\"" << data << "\"" << endl;
   RemoveDups(data);
   printf("out:\"%s\"\n", data); // "A B A"
 
   cout << "\nЗадание 3(сериализация):\n";
-  List myList(2);
+  List myList(3);
+  myList.PushTop("PushTop");
+  myList.PushBack("PushBack");
   FILE *writeFile = fopen("file.txt", "wb");
   myList.Serialize(writeFile);
   fclose(writeFile);
