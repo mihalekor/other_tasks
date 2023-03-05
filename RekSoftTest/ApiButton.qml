@@ -4,8 +4,6 @@ import QtQuick.Controls 2.15
 
 Button{
   id: root
-  onClicked: {mainPage.buttonClicked();}
-
   text:"Astronomy Picture of the Day"
   //anchors.centerIn: parent
   anchors.right: parent.right

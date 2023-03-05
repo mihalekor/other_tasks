@@ -35,14 +35,18 @@ Window {
           id: butt1
           y: 50
           text:"Astronomy Picture of the Day"
-          //onClicked: {root.buttonClicked();}
+          onClicked: {
+              page1.urlText=qsTr("NASA APIs: GET https://api.nasa.gov/planetary/apod");
+              stackView.push(page1);}
       }
 
       ApiButton {
           id: butt2
           y: 100
-          text:"Astronomy Picture of the Day2"
-          //onClicked: {root.buttonClicked();}
+          text:"Asteroids - NeoWs"
+          onClicked: {
+              page1.urlText=qsTr("NASA APIs: https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY");
+              stackView.push(page1);}
       }
 
     }
@@ -52,10 +56,6 @@ Window {
       visible: false
     }
 
-    ApiPage {
-      id: page2
-      visible: false
-    }
 
     /*Item {
       id: root
