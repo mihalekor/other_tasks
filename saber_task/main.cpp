@@ -227,6 +227,7 @@ public:
       }
       cout << "Writing to file:" << n_write << " byte. data:\"" << sNode.str << "\" \n";
       pNode = pNode->next;
+      delete[] sNode.str;
     } while (pNode != nullptr);
   }
 
@@ -361,7 +362,10 @@ int main()
   printf("out:\"%s\"\n", data); // "A B A"
 
   cout << "\nTask 3 (serialization):\n";
+  // ListNode *pNode = nullptr;
+  string *dfd = nullptr;
   List mySerialize(3);
+  mySerialize.Print_list();
   mySerialize.PushFront("PushFront");
   mySerialize.PushBack("PushBack");
   mySerialize.Print_list();

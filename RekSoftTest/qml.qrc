@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ApiPage.qml</file>
+        <file>ApiButton.qml</file>
+    </qresource>
+</RCC>
