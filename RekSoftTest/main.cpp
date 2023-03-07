@@ -1,3 +1,4 @@
+#include "CoreEngine.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -20,7 +21,8 @@ int main(int argc, char *argv[])
       },
       Qt::QueuedConnection);
 
-  // engine.rootContext()->setContextProperties("str", "NASA");
+  CoreEngine core;
+  engine.rootContext()->setContextObject(&core);
 
   engine.load(url);
 
