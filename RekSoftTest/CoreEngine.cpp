@@ -24,32 +24,62 @@ CoreEngine::CoreEngine(QObject *parent) : QObject{parent}
 {
   manager = new QNetworkAccessManager(this);
   sdb = QSqlDatabase::addDatabase("QSQLITE");
+  currentElementApi = 0;
+  QString dbName = "infoApi.sqlite";
 
-  sdb.setDatabaseName("db_name.sqlite");
-  if (!sdb.open())
+  if (!QFile::exists(dbName))
   {
-    qDebug() << sdb.lastError().text();
-    qDebug() << sdb.drivers();
+
+    sdb.setDatabaseName(dbName);
+    if (!sdb.open())
+    {
+      qDebug() << sdb.lastError().text();
+      qDebug() << sdb.drivers();
+    }
+
+    QSqlQuery query(sdb);
+    if (!query.exec("CREATE TABLE Json("
+                    "title VARCHAR( 2000 ),"
+                    "json_str VARCHAR( 2000 ),"
+                    "comment VARCHAR( 2000 )," // NOT NULL
+                    "date DATE"
+                    ")"))
+    {
+      qDebug() << sdb.lastError().text();
+    }
+
+    query.prepare("INSERT INTO Json(title) "
+                  "VALUES( :title)");
+    query.bindValue(":title", "APOD: Astronomy Picture of the Day");
+    query.exec();
+    query.prepare("INSERT INTO Json(title) "
+                  "VALUES( :title)");
+    query.bindValue(":title", "Asteroids: NeoWs");
+    query.exec();
+    query.prepare("INSERT INTO Json(title) "
+                  "VALUES( :title)");
+    query.bindValue(":title", "DONKI: Space Weather Database");
+    query.exec();
+    query.prepare("INSERT INTO Json(title) "
+                  "VALUES( :title)");
+    query.bindValue(":title", "Earth: Landsat imagery");
+    query.exec();
+    query.prepare("INSERT INTO Json(title) "
+                  "VALUES( :title)");
+    query.bindValue(":title", "EPIC: Earth Polychromatic Imaging Camera");
+
+    if (!query.exec())
+      qDebug() << query.lastError().text();
   }
-
-  QSqlQuery query(sdb);
-  if (!query.exec("CREATE TABLE Json("
-                  "   json_str VARCHAR( 2000 ) NOT NULL,"
-                  "   comment VARCHAR( 2000 ) NOT NULL,"
-                  "   date DATE NOT NULL"
-                  ")"))
+  else
   {
-    qDebug() << sdb.lastError().text();
-  }
-
-  query.prepare("INSERT INTO Json( json_str, comment, date ) "
-                "   VALUES( :json_str, :comment, :date )");
-  query.bindValue(":json_str", "Hello");
-  query.bindValue(":comment", "Hello2");
-  query.bindValue(":date", QDate::currentDate().toString("dd.MM.yyyy hh:mm:ss"));
-  if (!query.exec())
-  {
-    qDebug() << sdb.lastError().text();
+    qDebug() << "Data base already exist....";
+    sdb.setDatabaseName(dbName);
+    if (!sdb.open())
+    {
+      qDebug() << sdb.lastError().text();
+      qDebug() << sdb.drivers();
+    }
   }
 }
 
@@ -107,7 +137,7 @@ QString CoreEngine::reqestFromQml(QString n)
         qDebug() << "json error:" << json_error.errorString();
       }
 
-      result = content.data();
+      result = doucment.toJson().data(); // content.data();
     }
     else
       result = reply->errorString();
@@ -126,49 +156,69 @@ QString CoreEngine::reqestFromQml(QString n)
   return result;
 }
 
-int CoreEngine::clickSaveFromQml(QString n)
+int CoreEngine::clickSaveFromQml(QString jsonSave, QString comment)
 {
   qDebug() << "clickSaveFromQml";
-  if (sdb.open())
+  /*if (sdb.open())
   {
     QJsonDocument content = loadJson("reply_file.json");
     qDebug() << "content.toJson" << content.toJson().data();
     QSqlQuery query(sdb);
     query.prepare("INSERT INTO Json( json_str, comment, date ) "
                   "   VALUES( :json_str, :comment, :date )");
-    query.bindValue(":json_str", content.toJson().data());
-    query.bindValue(":comment", n);
+    query.bindValue(":json_str", jsonSave);
+    query.bindValue(":comment", comment);
     query.bindValue(":date", QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
     if (!query.exec())
     {
       qDebug() << sdb.lastError().text();
     }
+  }*/
+  if (sdb.open())
+  {
+    QJsonDocument content = loadJson("reply_file.json");
+    qDebug() << "content.toJson" << content.toJson().data();
+    QSqlQuery query(sdb);
+    query.prepare("UPDATE Json SET json_str=:json_str, comment=:comment, date=:date WHERE rowid =:rowid;");
+    query.bindValue(":json_str", jsonSave);
+    query.bindValue(":comment", comment);
+    query.bindValue(":date", QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
+    query.bindValue(":rowid", currentElementApi + 1);
+    if (!query.exec())
+    {
+      qDebug() << query.lastError().text();
+    }
   }
+  return 0;
 }
 
-QString CoreEngine::clickLoadFromQml(QString n)
+QStringList CoreEngine::clickLoadFromQml()
 {
+  QStringList res;
   QSqlQuery query(sdb);
-  if (!query.exec("SELECT json_str FROM Json ORDER BY rowid DESC LIMIT 1"))
-  {
-    qDebug() << "Error" << sdb.lastError().text();
-  }
+  query.prepare("SELECT json_str, comment FROM Json WHERE rowid =:rowid");
+  query.bindValue(":rowid", currentElementApi + 1);
+  if (!query.exec())
+    qDebug() << "SELECT Error" << query.lastError().text();
 
   QSqlRecord rec = query.record();
-  int indexOf = rec.indexOf("json_str");
+  int iJson_str = rec.indexOf("json_str");
+  int iComment = rec.indexOf("comment");
   query.next();
-  QString res = query.value(indexOf).toString();
+  res.push_back(query.value(iJson_str).toString());
+  res.push_back(query.value(iComment).toString());
 
   qDebug() << res;
 
   return res;
 }
-QString CoreEngine::clickLoadCommFromQml(QString n)
+
+QString CoreEngine::clickLoadCommFromQml()
 {
   QSqlQuery query(sdb);
   if (!query.exec("SELECT comment FROM Json ORDER BY rowid DESC LIMIT 1"))
   {
-    qDebug() << "Error" << sdb.lastError().text();
+    qDebug() << "Error" << query.lastError().text();
   }
 
   QSqlRecord rec = query.record();
@@ -181,7 +231,13 @@ QString CoreEngine::clickLoadCommFromQml(QString n)
   return res;
 }
 
-QString CoreEngine::getReqestFromQml() const
+QStringList CoreEngine::getApiInfo(int n)
+{
+  currentElementApi = n;
+  return {vecApiInfos[currentElementApi].description, vecApiInfos[n].url};
+}
+
+QString CoreEngine::getRequestFromQml() const
 {
   /*// берем адрес введенный в текстовое поле
 
@@ -205,7 +261,7 @@ QString CoreEngine::getReqestFromQml() const
   return QString("ret");
 }
 
-void CoreEngine::setReqest(QString url_)
+void CoreEngine::setRequest(QString url_)
 {
   // берем адрес введенный в текстовое поле
 

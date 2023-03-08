@@ -7,10 +7,12 @@ import QtQuick.Layouts 1.15
 Page{
   id: root
   title: "title"
-  property alias buttonText: navButton.text
+  //property alias buttonText: navButton.text
   property alias setTitle: root.title
   property alias setUrlText: urltxt.text
   property alias setDescriptionText: description.text
+  property alias setReplyText: replytxt.text
+  property alias setCommentText: edittxt.text
 
   signal buttonClicked();
   onButtonClicked:{stackView.pop()}
@@ -71,7 +73,7 @@ Page{
       
             TextArea.flickable: TextArea {
                 id: replytxt//textArea
-                text: qsTr("Get Request (timeout = 10s)! ")
+                text: qsTr("Push \"Request\" (timeout = 10s) ")
                 wrapMode: Text.WordWrap
             }
             ScrollBar.vertical: ScrollBar {}
@@ -120,15 +122,18 @@ Page{
     id: save
     text:"Save"
     Layout.margins: 10
-    onClicked: {clickSaveFromQml(edittxt.text)}
+    onClicked: {clickSaveFromQml(replytxt.text, edittxt.text)}
   }
 
   Button{
-    id: navButton
+    id: load
     text:"Load"
     Layout.margins: 10
-    onClicked: {replytxt.text=qsTr(clickLoadFromQml(urltxt.text));
-                edittxt.text=qsTr(clickLoadCommFromQml(urltxt.text))}
+    onClicked: {
+        var loadList = clickLoadFromQml()
+        replytxt.text = qsTr(loadList[0])       // json_str
+        edittxt.text = qsTr(loadList[1])        // comment
+    }
   }
   }
 }

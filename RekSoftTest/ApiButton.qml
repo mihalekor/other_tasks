@@ -15,4 +15,17 @@ Button{
   Layout.margins: 10
   Layout.alignment: Qt.AlignCenter
   Layout.minimumWidth: parent.width/2
+  property int index: 0
+  property alias set_index: root.index
+  
+
+  onClicked:  {
+      page1.setReplyText = "Push \"Request\" (timeout = 10s)"
+      page1.setCommentText = "Enter a comment"
+      page1.setTitle = text
+      stackView.push(page1);
+      var ApiInfo = getApiInfo(index)
+      page1.setDescriptionText = text +"\n" + ApiInfo[0]  // description
+      page1.setUrlText = ApiInfo[1]                       // url
+  }
 }

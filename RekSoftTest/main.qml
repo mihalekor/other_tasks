@@ -34,9 +34,7 @@ ApplicationWindow {
     Page {
       id: mainPage
       title: "NASA APIs:"
-
       signal buttonClicked();
-
       onButtonClicked:{stackView.push(page2)}
 
       ColumnLayout
@@ -50,62 +48,33 @@ ApplicationWindow {
 
       ApiButton {
           id: butt1
-          //y: 50
-          text:"Astronomy Picture of the Day"
-          onClicked: {
-              page1.setTitle = text
-              page1.setDescriptionText = "Этот метод структурирует изображения APOD и связанные с ними метаданные, чтобы их можно было использовать для других приложений. Кроме того, если concept_tagsдля параметра установлено значениеTrue, то возвращаются ключевые слова, полученные из пояснения к изображению. Эти ключевые слова можно использовать в качестве автоматически сгенерированных хэштегов для каналов Twitter или Instagram; но в целом они помогают обнаруживать соответствующие изображения."
-              page1.setUrlText=qsTr("https://api.nasa.gov/planetary/apod?api_key=wKXJIhhJo58U4QeF9RrU00qsJhHfd6iWk3pjyBaa");
-              //page1.setUrlText=qsTr("https://world.openfoodfacts.org/api/v0/product/737628064502.json");
-              
-              stackView.push(page1);
-          }
+          set_index:0
+          text:"APOD: Astronomy Picture of the Day"
       }
 
       ApiButton {
           id: butt2
-          //y: 100
-          text:"Asteroids - NeoWs"
-          onClicked: {
-              page1.setTitle = text
-              page1.setDescriptionText = "NeoWs (Near Earth Object Web Service) - это веб-сервис RESTful для получения информации об астероидах, сближающихся с Землей. С помощью NeoWs пользователь может: искать астероиды на основе даты их ближайшего сближения с Землей, искать конкретный астероид с его идентификатором малого тела NASA JPL, а также просматривать общий набор данных."
-              page1.setUrlText=qsTr("https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY");
-              stackView.push(page1);}
+          set_index:1
+          text:"Asteroids: NeoWs"
       }
 
 
       ApiButton {
           id: butt3
-          //y: 100
-          text:"DONKI"
-          onClicked: {
-              page1.setTitle = text
-              page1.setDescriptionText = ""
-              page1.setUrlText=qsTr("https://api.nasa.gov/DONKI/CME?startDate=2017-01-03&endDate=2017-01-03&api_key=DEMO_KEY");
-              stackView.push(page1);}
-      }
+          set_index:2
+          text:"DONKI: Space Weather Database"}
+
       ApiButton {
           id: butt4
-          //y: 100
-          text:"Earth"
-          onClicked: {
-              page1.setTitle = text
-              page1.setDescriptionText = ""
-              page1.setUrlText=qsTr("https://api.nasa.gov/DONKI/CME?startDate=2017-01-03&endDate=2017-01-03&api_key=DEMO_KEY");
-              stackView.push(page1);}
+          set_index:3
+          text:"Earth: Landsat imagery"
       }
 
       ApiButton {
           id: butt5
-          //y: 100
-          text:"EONET"
-          onClicked: {
-              page1.setTitle = text
-              page1.setDescriptionText = ""
-              page1.setUrlText=qsTr("https://world.openfoodfacts.org/api/v0/product/737628064502.json");
-              stackView.push(page1);}
+          set_index:4
+          text:"EPIC: Earth Polychromatic Imaging Camera"
       }
-
       
       
 
