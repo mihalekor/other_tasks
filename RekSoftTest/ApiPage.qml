@@ -115,14 +115,23 @@ Page{
     }
     
     Rectangle {
-        height: 20
-        //color: "lightgray"
-        Layout.fillWidth: parent.width
-        Layout.margins: 10
+      height: 20
+      Layout.fillWidth: parent.width
+      Layout.margins: 10
+        
       Item {
         Timer {
-            interval: 500; running: true; repeat: true
-            onTriggered: time.text = Date().toString()
+            id:timer
+            interval: 100; running: false; repeat: true
+            property int index: 0
+            onTriggered: {               
+              const array = ['--','\\','|','/']
+                if(index>3) index = 0
+                time.text = 'Request process: ' + array[index]
+                index=index+1
+            }
+            onRunningChanged: index = 0 
+            
         }
     
         Text { id: time }
@@ -144,7 +153,10 @@ Page{
       text:"Request"//urltxt.text
       Layout.margins: 10
       onClicked: {
-        replytxt.text=qsTr(clickRequest(urltxt.text))}
+        timer.start()
+        replytxt.text=qsTr(clickRequest(urltxt.text))
+        timer.stop()
+      }
    }
 
     Button{

@@ -42,6 +42,7 @@ private:
     QString url;
   };
 
+  QString apiKey = "DEMO_KEY"; // DEMO_KEY  //wKXJIhhJo58U4QeF9RrU00qsJhHfd6iWk3pjyBaa
   const std::vector<apiInfo> vecApiInfos = {
 
       {// APOD: Astronomy Picture of the Day
@@ -52,7 +53,7 @@ private:
        "качестве автоматически сгенерированных хэштегов для каналов Twitter или Instagram; но в целом они помогают "
        "обнаруживать соответствующие изображения.",
        // url
-       "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY"},
+       "https://api.nasa.gov/planetary/apod?api_key=" + apiKey},
 
       {// Asteroids: NeoWs
        //  description
@@ -61,7 +62,7 @@ private:
        "сближения с Землей, искать конкретный астероид с его идентификатором малого тела NASA JPL, а также "
        "просматривать общий набор данных.",
        // url
-       "https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY"},
+       "https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=" + apiKey},
 
       {// DONKI: Space Weather Database
        //  description
@@ -70,7 +71,7 @@ private:
        "DONKI ведет хронику ежедневных интерпретаций наблюдений за космической погодой, анализа, моделей, прогнозов и "
        "уведомлений, предоставляемых Центром исследований космической погоды (SWRC).\nГеомагнитная буря (GST):",
        // url
-       "https://api.nasa.gov/DONKI/GST?startDate=2016-01-01&endDate=2016-01-30&api_key=DEMO_KEY"},
+       "https://api.nasa.gov/DONKI/GST?startDate=2016-01-01&endDate=2016-01-30&api_key=" + apiKey},
 
       {// Earth: Landsat imagery
        //  description
@@ -79,7 +80,7 @@ private:
        "составляет 2,19 миллиарда долларов, что намного превышает многолетние общие затраты на создание, запуск и "
        "управление спутниками и датчиками Landsat. ",
        // url
-       "https://api.nasa.gov/planetary/earth/imagery?lon=-95.33&lat=29.78&date=2018-01-01&dim=0.15&api_key=DEMO_KEY"},
+       "https://api.nasa.gov/planetary/earth/imagery?lon=-95.33&lat=29.78&date=2018-01-01&dim=0.15&api_key=" + apiKey},
 
       {// EPIC: Earth Polychromatic Imaging Camera
        //  description
@@ -87,7 +88,7 @@ private:
        "Camera (EPIC). Уникально расположенный в точке Лагранжа Земля-Солнце, EPIC обеспечивает полное изображение "
        "диска Земли и захватывает уникальные перспективы определенных астрономических событий",
        // url
-       "https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=DEMO_KEY"}};
+       "https://api.nasa.gov/neo/rest/v1/feed?start_date=2015-09-07&end_date=2015-09-08&api_key=" + apiKey}};
 };
 
 #endif // COREENGINE_H
