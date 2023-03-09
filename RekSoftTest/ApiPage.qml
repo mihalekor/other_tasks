@@ -16,20 +16,41 @@ Page{
 
   signal buttonClicked();
   onButtonClicked:{stackView.pop()}
+  
+  Dialog {
+    id: dialogOk
+    property alias setLabel: dialogLabel.text
+    title: "Save Json and comment:"
+      
+    anchors.centerIn: parent
+      
+    contentItem:
+    Label {
+      id: dialogLabel
+      text: qsTr("Save ok!")
+      font.pointSize: 12
+      horizontalAlignment: Text.AlignHCenter
+      verticalAlignment: Text.AlignVCenter
+      color: "#ffffff"
+      font.bold: true
+      padding: 10
+      background: 
+        Rectangle {
+          color: "#353535"
+        }
+    }
+    standardButtons: Dialog.Ok
+    implicitWidth: parent.width/2
+    implicitHeight: parent.height/4
+  }
 
   ColumnLayout
   {
-      function scroll_to_bottom() {
-          flickabe_item.contentY = 
-              Math.max(0, webview_item.height - flickabe_item.height);
-          return;
-      }
-      //anchors.top: parent.top
-      id: colay
-      spacing: 2
-      width: parent.width
-      anchors.fill: parent
-      anchors.bottomMargin: 100
+    id: colay
+    spacing: 2
+    width: parent.width
+    anchors.fill: parent
+    anchors.bottomMargin: 100
 
     Text {
         id: description
@@ -48,15 +69,7 @@ Page{
         wrapMode: Text.WordWrap
     }
         
-    /*Text {
-        id: replytxt
-        font.pointSize: 12
-        Layout.margins: 10
-        Layout.fillWidth: parent.width 
-        wrapMode: Text.WordWrap
-        text: "reply JSON:"
-    }*/
-    
+  
     Rectangle {
         height: parent.height/2
         Layout.fillWidth: parent.width
@@ -73,7 +86,7 @@ Page{
       
             TextArea.flickable: TextArea {
                 id: replytxt//textArea
-                text: qsTr("Push \"Request\" (timeout = 10s) ")
+                text: qsTr("Push \"Request\" (timeout = 7s) ")
                 wrapMode: Text.WordWrap
             }
             ScrollBar.vertical: ScrollBar {}
@@ -90,6 +103,7 @@ Page{
       TextEdit {
         id: edittxt 
         anchors.fill: parent
+        width: parent.width
         //Layout.minimumWidth: 20
         font.bold: true
         font.pointSize: 12
@@ -99,42 +113,64 @@ Page{
         text: "Enter a comment"
       }
     }
+    
+    Rectangle {
+        height: 20
+        //color: "lightgray"
+        Layout.fillWidth: parent.width
+        Layout.margins: 10
+      Item {
+        Timer {
+            interval: 500; running: true; repeat: true
+            onTriggered: time.text = Date().toString()
+        }
+    
+        Text { id: time }
+      }
+    }
   }
 
   RowLayout
   {
-      id: rolay
-      spacing: 10
-      //width: parent.width
-      anchors.bottom: parent.bottom
-      anchors.right: parent.right
-      layoutDirection: Qt.RightToLeft
+    id: rolay
+    spacing: 10
+    //width: parent.width
+    anchors.bottom: parent.bottom
+    anchors.right: parent.right
+    layoutDirection: Qt.RightToLeft
 
-  Button{
-    id: getHttp
-    text:"Request"//urltxt.text
-    Layout.margins: 10
-    onClicked: {
-        replytxt.text=qsTr(reqestFromQml(urltxt.text))}
-  }
+   Button{
+      id: getHttp
+      text:"Request"//urltxt.text
+      Layout.margins: 10
+      onClicked: {
+        replytxt.text=qsTr(clickRequest(urltxt.text))}
+   }
 
-  Button{
-    id: save
-    text:"Save"
-    Layout.margins: 10
-    onClicked: {clickSaveFromQml(replytxt.text, edittxt.text)}
-  }
+    Button{
+      id: save
+      text:"Save"
+      Layout.margins: 10
+      onClicked: 
+      {
+        if(!clickSaveFromQml(replytxt.text, edittxt.text))    
+          dialogOk.open()
+        else
+          dialogOk.setLabel = qsTr("Save Error!")
+          dialogOk.open()
+      }
+    }
 
-  Button{
-    id: load
-    text:"Load"
-    Layout.margins: 10
-    onClicked: {
+    Button{
+      id: load
+      text:"Load"
+      Layout.margins: 10
+      onClicked: {
         var loadList = clickLoadFromQml()
         replytxt.text = qsTr(loadList[0])       // json_str
         edittxt.text = qsTr(loadList[1])        // comment
+      }
     }
-  }
   }
 }
 

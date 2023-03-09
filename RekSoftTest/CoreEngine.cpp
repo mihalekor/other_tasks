@@ -22,7 +22,6 @@ void saveJson(QJsonDocument document, QString fileName)
 
 CoreEngine::CoreEngine(QObject *parent) : QObject{parent}
 {
-  manager = new QNetworkAccessManager(this);
   sdb = QSqlDatabase::addDatabase("QSQLITE");
   currentElementApi = 0;
   QString dbName = "infoApi.sqlite";
@@ -38,12 +37,8 @@ CoreEngine::CoreEngine(QObject *parent) : QObject{parent}
     }
 
     QSqlQuery query(sdb);
-    if (!query.exec("CREATE TABLE Json("
-                    "title VARCHAR( 2000 ),"
-                    "json_str VARCHAR( 2000 ),"
-                    "comment VARCHAR( 2000 )," // NOT NULL
-                    "date DATE"
-                    ")"))
+    if (!query.exec("CREATE TABLE Json(title VARCHAR( 2000 ),json_str VARCHAR( 2000 ),comment VARCHAR( 2000 ), date "
+                    "DATE )")) // NOT NULL
     {
       qDebug() << sdb.lastError().text();
     }
@@ -83,21 +78,26 @@ CoreEngine::CoreEngine(QObject *parent) : QObject{parent}
   }
 }
 
-QString CoreEngine::reqestFromQml(QString n)
+QStringList CoreEngine::getApiInfo(int n)
 {
+  currentElementApi = n;
+  return {vecApiInfos[currentElementApi].description, vecApiInfos[n].url};
+}
 
+QString CoreEngine::clickRequest(QString urlStr)
+{
   QString result("No Data!");
-  QUrl url(n);
+  QUrl url(urlStr);
   QNetworkRequest request(url);
   QTimer timer;
   timer.setSingleShot(true);
 
-  QNetworkReply *reply = manager->get(request);
+  QNetworkReply *reply = manager.get(request);
 
   QEventLoop loop;
   connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
   connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-  timer.start(10000);
+  timer.start(7000);
   loop.exec();
 
   // выводим содержимое
@@ -131,13 +131,10 @@ QString CoreEngine::reqestFromQml(QString n)
         }
 
         saveJson(doucment, "reply_file.json");
+        result = doucment.toJson().data(); // content.data();
       }
       else
-      {
-        qDebug() << "json error:" << json_error.errorString();
-      }
-
-      result = doucment.toJson().data(); // content.data();
+        result = "json content error: " + json_error.errorString();
     }
     else
       result = reply->errorString();
@@ -152,32 +149,17 @@ QString CoreEngine::reqestFromQml(QString n)
   }
 
   reply->deleteLater();
-
+  qDebug() << result;
   return result;
 }
 
 int CoreEngine::clickSaveFromQml(QString jsonSave, QString comment)
 {
   qDebug() << "clickSaveFromQml";
-  /*if (sdb.open())
-  {
-    QJsonDocument content = loadJson("reply_file.json");
-    qDebug() << "content.toJson" << content.toJson().data();
-    QSqlQuery query(sdb);
-    query.prepare("INSERT INTO Json( json_str, comment, date ) "
-                  "   VALUES( :json_str, :comment, :date )");
-    query.bindValue(":json_str", jsonSave);
-    query.bindValue(":comment", comment);
-    query.bindValue(":date", QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
-    if (!query.exec())
-    {
-      qDebug() << sdb.lastError().text();
-    }
-  }*/
   if (sdb.open())
   {
-    QJsonDocument content = loadJson("reply_file.json");
-    qDebug() << "content.toJson" << content.toJson().data();
+    // QJsonDocument content = loadJson("reply_file.json");
+    // qDebug() << "content.toJson" << content.toJson().data();
     QSqlQuery query(sdb);
     query.prepare("UPDATE Json SET json_str=:json_str, comment=:comment, date=:date WHERE rowid =:rowid;");
     query.bindValue(":json_str", jsonSave);
@@ -187,6 +169,7 @@ int CoreEngine::clickSaveFromQml(QString jsonSave, QString comment)
     if (!query.exec())
     {
       qDebug() << query.lastError().text();
+      return 1;
     }
   }
   return 0;
@@ -211,80 +194,4 @@ QStringList CoreEngine::clickLoadFromQml()
   qDebug() << res;
 
   return res;
-}
-
-QString CoreEngine::clickLoadCommFromQml()
-{
-  QSqlQuery query(sdb);
-  if (!query.exec("SELECT comment FROM Json ORDER BY rowid DESC LIMIT 1"))
-  {
-    qDebug() << "Error" << query.lastError().text();
-  }
-
-  QSqlRecord rec = query.record();
-  int indexOf = rec.indexOf("comment");
-  query.next();
-  QString res = query.value(indexOf).toString();
-
-  qDebug() << res;
-
-  return res;
-}
-
-QStringList CoreEngine::getApiInfo(int n)
-{
-  currentElementApi = n;
-  return {vecApiInfos[currentElementApi].description, vecApiInfos[n].url};
-}
-
-QString CoreEngine::getRequestFromQml() const
-{
-  /*// берем адрес введенный в текстовое поле
-
-  QUrl url(ui->lineEdit->text());
-
-  // создаем объект для запроса
-
-  QNetworkRequest request(url);
-
-  // Выполняем запрос, получаем указатель на объект
-
-  // ответственный за ответ
-
-  QNetworkReply *reply = manager->get(request);
-
-  // Подписываемся на сигнал о готовности загрузки
-
-  connect(reply, SIGNAL(finished()),
-
-          this, SLOT(replyFinished()));*/
-  return QString("ret");
-}
-
-void CoreEngine::setRequest(QString url_)
-{
-  // берем адрес введенный в текстовое поле
-
-  QUrl url(url_);
-
-  // создаем объект для запроса
-
-  QNetworkRequest request(url);
-
-  // Выполняем запрос, получаем указатель на объект
-
-  // ответственный за ответ
-
-  QNetworkReply *reply = manager->get(request);
-
-  // Подписываемся на сигнал о готовности загрузки
-
-  connect(reply, SIGNAL(finished()),
-
-          this, SLOT(replyFinished()));
-}
-
-void CoreEngine::replyFinished(QString json)
-{
-  emit replyJson();
 }

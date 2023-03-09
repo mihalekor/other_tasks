@@ -46,39 +46,35 @@ ApplicationWindow {
           anchors.fill: parent
           anchors.bottomMargin: 500
 
-      ApiButton {
-          id: butt1
-          set_index:0
-          text:"APOD: Astronomy Picture of the Day"
-      }
+          ApiButton {
+            id: butt1
+            set_index:0
+            text:"APOD: Astronomy Picture of the Day"
+          }
 
-      ApiButton {
-          id: butt2
-          set_index:1
-          text:"Asteroids: NeoWs"
-      }
+          ApiButton {
+            id: butt2
+            set_index:1
+            text:"Asteroids: NeoWs"
+          }
 
+          ApiButton {
+            id: butt3
+            set_index:2
+            text:"DONKI: Space Weather Database"
+          }
 
-      ApiButton {
-          id: butt3
-          set_index:2
-          text:"DONKI: Space Weather Database"}
+          ApiButton {
+            id: butt4
+            set_index:3
+            text:"Earth: Landsat imagery"
+          }
 
-      ApiButton {
-          id: butt4
-          set_index:3
-          text:"Earth: Landsat imagery"
-      }
-
-      ApiButton {
-          id: butt5
-          set_index:4
-          text:"EPIC: Earth Polychromatic Imaging Camera"
-      }
-      
-      
-
-      
+          ApiButton {
+            id: butt5
+            set_index:4
+            text:"EPIC: Earth Polychromatic Imaging Camera"
+          }      
       }
     }
 
@@ -86,17 +82,5 @@ ApplicationWindow {
       id: page1
       visible: false
     }
-
-
-    /*Item {
-      id: root
-      x: 100
-      y: 200
-      property int size: 100
-      property color color: "lightgrey"
-      }
-      */
-
-    //onClicked: {win.color = Qt.rgba(Math.random(), Math.random(), Math.random());}
 }
 
