@@ -31,3 +31,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
   CoreEngine.h
+
+LIBS += -L$$PWD -lCommonMobiled1
