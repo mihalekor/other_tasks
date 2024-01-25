@@ -1,2 +1,4 @@
 *.pro.user
 /saber_task/deb/
+*.idx
+*.obj
